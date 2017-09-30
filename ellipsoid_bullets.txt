@@ -1,0 +1,135 @@
+8 6           #world x and y dims
+0 0  3        #viewpoint (x, y, z)
+
+# Infinite Plane 1 (left wall)
+plane
+5 2 0.25        #r g b ambient
+0 0 0         #r g b diffuse
+0 0 0         #r g b specular
+# Plane specific data
+ 3  0  1      #normal
+-4 -1 -1      #point
+
+# Infinite Plane 2 (right wall)
+plane
+5 2 0.25         #r g b ambient
+0 0 0         #r g b diffuse
+0 0 0         #r g b specular
+# Plane specific data
+-3 0  1       #normal
+ 4 -1 -1      #point
+
+# Infinite Plane 3 (floor)
+plane
+3 2.43 0.16         #r g b ambient
+0 0 0         #r g b diffuse
+0 0 0         #r g b specular
+# Plane specific data
+ 0  1  0      #normal
+ 0 -3 -1      #point
+
+# Infinite Plane 4 (cieling)
+plane
+2 2.62 4.3
+0 0 0
+0 0 0
+# Plane-specific data
+ 0 -1  0	#normal
+ 0  4  1	#point
+
+# Sphere 1
+sphere_pixmap
+0.4 2 0         #r g b ambient
+0 0 0         #r g b diffuse
+0 0 0         #r g b specular
+# Sphere specific data
+0 -2  -1      #center 
+1.0           #radius
+# Sphere_pixmap specific data
+2             #Brightness multiplier
+-1 0 1        #Forward vector
+globe.ppm     #Associated texture file
+
+# Ellipsoid 1
+ellipsoid
+3 3 3
+0 0 0
+0 0 0
+ 0  4  -5
+0.25 1 0.25
+
+# Ellipsoid 2
+ellipsoid
+3 3 3
+0 0 0
+0 0 0
+-1  4 -4
+0.25 1 0.25
+
+# Ellipsoid 3
+ellipsoid
+3 3 3
+0 0 0
+0 0 0
+1 4 -4
+0.25 1 0.25
+
+# Ellipsoid 4 (row 3)
+ellipsoid
+3 3 3
+0 0 0
+0 0 0
+-2 4 -3
+0.25 1.0 0.25
+
+ellipsoid
+3 3 3
+0 0 0
+0 0 0
+-0.75 4 -3
+0.25 1.0 0.25
+
+ellipsoid
+3 3 3
+0 0 0
+0 0 0
+0.75 4 -3
+0.25 1.0 0.25
+
+ellipsoid
+3 3 3
+0 0 0
+0 0 0
+2.0 4 -3
+0.25 1.0 0.25
+
+# Ellipsoid through sphere
+ellipsoid
+3 3 0
+0 0 0
+0 0 0
+0 -2 -0.75
+3 1 1
+
+# Three more spheres to satisfy homework requirements...
+sphere
+0 0 5
+0 0 0
+0 0 0
+0 3.5 -4.5
+0.5
+
+sphere
+4 1 0 
+0 0 0
+0 0 0
+0 3.5 -3
+0.5
+
+sphere
+1 3 0
+0 0 0
+0 0 0
+1.75 3.5 -3
+0.75
+ 

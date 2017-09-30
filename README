@@ -1,0 +1,37 @@
+PURPOSE:
+	ray3 is a recursive raytracing algorithm. It includes support for a small selection of objects. It also
+includes an anti-aliasing algorithm to help smooth out the jaggies.
+
+FEATURES:
+	Selective Anti-aliasing -
+		This program does not simply shoot a bunch of rays through each pixel. It instead only shoots
+		extra rays through those pixels that contain significantly different colors within different
+		parts of the pixel. This SIGNIFICANTLY reduces run-time. For example, with 10 AA samples per
+		pixel, the naive algorithm runs 10 times longer, but this algorithm runs only about 2.75 times
+		longer with about the same results.
+	Textured objects -
+		You can supply textures for spheres and finite planes.
+	Ellipsoids -
+		You can now have the oh-so-hard-to-implement ellipsoid!
+
+DANGERS:
+	I came up with the ellipsoid class myself, and as such, I am not quite sure that the math completely
+works out. I will have to wait until I can test it further. Use at your own risk!
+
+INSTALLATION:
+To compile, simply type:
+
+	make
+
+at the command line. "make" produces the executable file "ray3".
+
+USAGE:
+
+	./ray3 outputfile xsize
+
+	outputfile - the filename to which the image will be written (PPM format).
+	xsize - the number of pixels that determines the width of the image.
+
+It expects input from stdin, so you may redirect input:
+
+	./ray3 outputfile xsize < world.txt

@@ -1,0 +1,191 @@
+8 6	#x,y dimensions
+0 0 4	#viewpoint
+
+# Alley
+fplanetex
+4 0 6 
+2 0.5 0.1
+.7 .7 .7
+0 1 0	#plane normal
+-2.5 -3 -2	#point
+1 0 0	#orientation
+5 15	#size
+3
+#3.01 4.49
+5 15
+alley3.ppm
+
+#left gutter
+fplane
+0 0 0
+3 3 3
+0 0 0
+-1 0 0	#normal
+-2.5 -3.5 -2 #point
+0 1 0 #orientation
+0.5 15
+
+fplane
+2 2 2
+3 3 3
+0 0 0
+0 1 0	#normal
+-3 -3.5 -2
+1 0 0
+0.5 15
+
+fplane
+5 2 0.25
+3 3 3
+0 0 0
+1 0 0	#normal
+-3 -3 -2	#point
+0 -1 0	#orientation
+0.5 15
+
+# Right Gutter
+fplane
+0 0 0
+3 3 3
+0 0 0
+1 0 0	#normal
+2.5 -3 -2	#point
+0 -1 0	#orientation
+0.5 15
+
+fplane
+2 2 2
+3 3 3
+0 0 0
+0 1 0	#normal
+2.5 -3.5 -2	#point
+1 0 0	#orientation
+0.5 15
+
+fplane
+5 2 0.25
+3 3 3
+0 0 0
+-1 0 0	#normal
+3 -3.5 -2	#point
+0 1 0	#orientation
+0.5 15
+
+# Back Wall
+fplanetex
+6 3 0
+5 5 5
+0 0 0
+0 0 1	#normal
+-25 -5 -17	#point
+1 0 0	#orientation
+50 30	#size
+8	#brightness multiplier
+5 5	#texture size
+concrete1.ppm	#texture file
+
+# Neon Sign
+fplanetex
+1 1 1
+10 10 10
+0 0 0
+0 0 -1	#normal
+-4 3 -17	#point
+1 0 0	#orientation
+8 6	#size
+10	#brigthness multiplier
+8 6	#texture size
+raytracer_allies.ppm	#texture file
+
+# Bowling ball
+sphere_pixmap
+0 1 5
+0 0 6
+0 1 1
+0 -2.5 -5	#center
+0.5	#radius
+6	#Brightness multiplier
+-1 0 .2	#forward vector
+bowling_ball.ppm	#texture file
+
+# Black Hole 1
+sphere
+0 0 0
+1 1 1
+1 1 1
+-6 3 -8
+3.4
+
+# Black Hole 2
+sphere
+0 0 0
+1 1 1
+1 1 1
+6 3 -8
+3.4
+
+# Pins row 1
+ellipsoid
+4 4 4
+1 1 1
+0 0 0
+0 -3 -13
+0.5 1.5 0.5
+
+# Pins row 2
+ellipsoid
+4 4 4
+1 1 1
+0 0 0
+-0.5 -3 -14
+0.5 1.5 0.5
+
+ellipsoid
+4 4 4
+1 1 1
+0 0 0
+0.5 -3 -14
+0.5 1.5 0.5
+
+# Pins row 3
+ellipsoid
+4 4 4
+1 1 1
+0 0 0
+-1 -3 -15
+0.5 1.5 0.5
+
+ellipsoid
+4 4 4
+1 1 1
+0 0 0
+0 -3 -15
+0.5 1.5 0.5
+
+ellipsoid
+4 4 4
+1 1 1
+0 0 0
+1 -3 -15
+0.5 1.5 0.5
+
+#underfloor
+fplanetex
+3 3 0
+0 4 4
+0 0 0
+0 1 0	#normal
+-25 -5 0	#point
+1 0 0	#orientation
+50 20	#size
+9	#brightness multiplier
+1 1	#texture size
+tile1.ppm	#texture file
+
+pointlight
+8 8 8
+2 0 -7
+
+pointlight
+5 5 5
+1 -1 -13
