@@ -18,5 +18,5 @@ $(OBJS): $(INCS) Makefile
 	gcc $(OPTS) $(OPTMZ) -c $<
 
 clean:
-	-rm -vf *.o
+	-rm -vf *.o ray3
 
