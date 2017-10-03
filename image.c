@@ -45,6 +45,40 @@ void make_image( FILE *outFP, model_t *model )
 
 void make_pixel( model_t *model, int x, int y, unsigned char *pixval )
 {
+    double center[3], intensity[3], dir[3];
+    const double lens[3] = {0.0, 0.0, 0.0};
+    proj_t *projection = model->proj;
+    intensity[0]=0; intensity[1]=0; intensity[2]=0;
+    
+    // Get world (x,y) coordinates for the image pixel on the image plane
+    map_pix_to_world( projection, x, y, center );
+    
+    // Trace the center ray
+    //Compute unit vector "dir" as "view_point" to "center"
+    vl_diff3( dir, lens, center );
+    vl_unitvec3( dir, dir );
+    
+    ray_trace( model, lens, dir, intensity, 0.0, NULL );
+    
+    // Truncate color intensities to the range [0,1]
+    // then convert to range [0,255]
+    for( int count = 0; count < 3; ++count )
+    {
+        if( intensity[count] > 1.0 )
+        {
+            intensity[count] = 1.0;
+        }
+        else if( intensity[count] < 0.0 )
+        {
+            intensity[count] = 0.0;
+        }
+        
+        pixval[count] = 255 * intensity[count];
+    }
+}
+
+void make_pixel_orig( model_t *model, int x, int y, unsigned char *pixval )
+{
 	double center[3], gold1[3], gold2[3], randpoint[3], intensity[3], dir[3];
 	double intens2[3], intens3[3], intens4[3];
 	int count;

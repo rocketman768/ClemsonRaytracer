@@ -75,19 +75,16 @@ void projection_dump(proj_t *projection) {
 
 void map_pix_to_world( proj_t *projection, int x, int y, double *world )
 {
-   world[0] = (((double)(x+0)/
-      (double)(projection->win_size_pixel[0]-1))*projection->win_size_world[0]);
-   world[0] -= projection->win_size_world[0]/2.0;
+   double xd = (double)x + 0.5f;
+   double yd = (double)y + 0.5f;
+   double xResolution = projection->win_size_pixel[0];
+   double yResolution = projection->win_size_pixel[1];
 
-   // The following segment is the way it used to be. It mapped sort of upside-down.
-   //*(world+1) = (((double)(y+0)/
-   //   (double)(projection->win_size_pixel[1]-1))*projection->win_size_world[1]);
-   //*(world+1) -= projection->win_size_world[1]/2.0;
-
-   world[1] = (1-y/(double)(projection->win_size_pixel[1]-1)) * projection->win_size_world[1];
-   world[1] -= projection->win_size_world[1]/2.0;
-
-   *(world+2) = 0;
+   world[0] = (1.0 - xd / xResolution) * projection->win_size_world[0]
+               - projection->win_size_world[0] / 2.0;
+   world[1] = (yd / yResolution) * projection->win_size_world[1]
+               - projection->win_size_world[1] / 2.0;
+   world[2] = projection->view_point[2];
 }
 
 void golden_scatter( proj_t *proj, double *input, double *p1, double *p2 )
