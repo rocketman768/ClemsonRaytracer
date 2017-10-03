@@ -87,6 +87,47 @@ void map_pix_to_world( proj_t *projection, int x, int y, double *world )
    world[2] = projection->view_point[2];
 }
 
+void map_lens_pix_to_world (proj_t *projection, int x, int y, double *world)
+{
+    // TODO: make parameters
+    const double fNumber = 2.7f;
+    const double focalLength = 0.3f;
+    const double xResolution = 3.f;
+    const double yResolution = 3.f;
+
+    double xd = (double)x + 0.5f;
+    double yd = (double)y + 0.5f;
+    double xSizeWorld = focalLength / fNumber;
+    double ySizeWorld = focalLength / fNumber;
+    
+    world[0] = xd / xResolution * xSizeWorld;
+    world[1] = yd / yResolution * ySizeWorld;
+    world[2] = 0.f;
+}
+
+void thin_lens_model(
+                     const double focalDistance,
+                     double *lensCenter,
+                     double *centerRayDirection,
+                     double *lensPosition,
+                     double *outgoingRayDirection)
+{
+    double centerRayFocalPoint[3];
+    // Depth of the focal plane
+    // TODO: check for infinity
+    //double focalDistance = 1.0 / (1.0 / focalLength - 1.0 / a);
+    
+    // All rays should meet at this point on the focal plane.
+    // This is the ray that extends from the lens center along the direction from the
+    // image plane pixel until it hits the plane of focus.
+    vl_scale3(centerRayFocalPoint, centerRayDirection, -focalDistance / centerRayDirection[2]);
+    vl_sum3(centerRayFocalPoint, centerRayFocalPoint, lensCenter);
+    
+    // outgoingRayDirection = norm( centerRayFocalPoint - lensPosition )
+    vl_diff3(outgoingRayDirection, centerRayFocalPoint, lensPosition);
+    vl_unitvec3(outgoingRayDirection, outgoingRayDirection);
+}
+
 void golden_scatter( proj_t *proj, double *input, double *p1, double *p2 )
 {
 	static double G = 0.61803399;

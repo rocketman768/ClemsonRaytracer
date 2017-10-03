@@ -45,35 +45,55 @@ void make_image( FILE *outFP, model_t *model )
 
 void make_pixel( model_t *model, int x, int y, unsigned char *pixval )
 {
-    double center[3], intensity[3], dir[3];
-    const double lens[3] = {0.0, 0.0, 0.0};
+    double worldPix[3], intensity[3], dir[3], centerDir[3];
+    double lensCenter[3] = {0.0, 0.0, 0.0};
+    double lensWorldPix[3] = {0.0, 0.0, 0.0};
+    double totalIntensity[3] = {0.0, 0.0, 0.0};
+    double intensityScale = 9.f;
     proj_t *projection = model->proj;
     intensity[0]=0; intensity[1]=0; intensity[2]=0;
     
     // Get world (x,y) coordinates for the image pixel on the image plane
-    map_pix_to_world( projection, x, y, center );
+    map_pix_to_world( projection, x, y, worldPix );
     
-    // Trace the center ray
-    //Compute unit vector "dir" as "view_point" to "center"
-    vl_diff3( dir, lens, center );
-    vl_unitvec3( dir, dir );
+    // The ray from the image plane through the center of the lens
+    vl_diff3( centerDir, lensCenter, worldPix );
+    vl_unitvec3( centerDir, centerDir );
     
-    ray_trace( model, lens, dir, intensity, 0.0, NULL );
-    
+    for (int lens_y = 0; lens_y < 3; ++lens_y)
+    {
+        for (int lens_x = 0; lens_x < 3; ++lens_x)
+        {
+            // Get the point on the lens
+            map_lens_pix_to_world (projection, lens_x, lens_y, lensWorldPix);
+            
+            // Use the thin lens model to get the direction of ray leaving the lens
+            thin_lens_model(5.0, lensCenter, centerDir, lensWorldPix, dir);
+
+            // Trace the ray leaving the lens
+            ray_trace( model, lensWorldPix, dir, intensity, 0.0, NULL );
+            
+            // Add the ray to the total intensity
+            vl_sum3( totalIntensity, totalIntensity, intensity );
+        }
+    }
+    // Scale the total intensity by the amount of light coming through the lens
+    vl_scale3(totalIntensity, totalIntensity, 1.0 / intensityScale);
+
     // Truncate color intensities to the range [0,1]
     // then convert to range [0,255]
     for( int count = 0; count < 3; ++count )
     {
-        if( intensity[count] > 1.0 )
+        if( totalIntensity[count] > 1.0 )
         {
-            intensity[count] = 1.0;
+            totalIntensity[count] = 1.0;
         }
-        else if( intensity[count] < 0.0 )
+        else if( totalIntensity[count] < 0.0 )
         {
-            intensity[count] = 0.0;
+            totalIntensity[count] = 0.0;
         }
         
-        pixval[count] = 255 * intensity[count];
+        pixval[count] = 255 * totalIntensity[count];
     }
 }
 

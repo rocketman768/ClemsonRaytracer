@@ -38,6 +38,13 @@ void fplanetex_getamb( obj_t *obj, double *ambient );
 
 /** projection.c **/
 void map_pix_to_world (proj_t *projection, int x, int y, double *world);
+void map_lens_pix_to_world (proj_t *projection, int x, int y, double *world);
+void thin_lens_model(
+                     const double focalDistance,
+                     double *lensCenter,
+                     double *centerRayDirection,
+                     double *lensPosition,
+                     double *outgoingRayDirection);
 proj_t *projection_init(FILE *inFP, int columns);
 void golden_scatter( proj_t *proj, double *input, double *p1, double *p2 );
 void rand_scatter( proj_t *proj, double *input, double *output );
