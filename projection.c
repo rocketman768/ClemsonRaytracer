@@ -87,8 +87,8 @@ void map_lens_pix_to_world (proj_t *projection, int x, int y, double *world)
     double xd = (double)x + 0.5f;
     double yd = (double)y + 0.5f;
     
-    world[0] = xd / xResolution * projection->lens_size_world[0];
-    world[1] = yd / yResolution * projection->lens_size_world[1];
+    world[0] = xd / xResolution * projection->lens_size_world[0] - projection->lens_size_world[0] / 2.0;
+    world[1] = yd / yResolution * projection->lens_size_world[1] - projection->lens_size_world[1] / 2.0;
     world[2] = 0.f;
 }
 
