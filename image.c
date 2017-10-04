@@ -49,8 +49,8 @@ void make_pixel( model_t *model, int x, int y, unsigned char *pixval )
     double lensCenter[3] = {0.0, 0.0, 0.0};
     double lensWorldPix[3] = {0.0, 0.0, 0.0};
     double totalIntensity[3] = {0.0, 0.0, 0.0};
-    double intensityScale = 9.f;
     proj_t *projection = model->proj;
+    double intensityScale = projection->lens_resolution_pixel[0] * projection->lens_resolution_pixel[1];
     intensity[0]=0; intensity[1]=0; intensity[2]=0;
     
     // Get world (x,y) coordinates for the image pixel on the image plane
@@ -60,15 +60,15 @@ void make_pixel( model_t *model, int x, int y, unsigned char *pixval )
     vl_diff3( centerDir, lensCenter, worldPix );
     vl_unitvec3( centerDir, centerDir );
     
-    for (int lens_y = 0; lens_y < 3; ++lens_y)
+    for (int lens_y = 0; lens_y < projection->lens_resolution_pixel[1]; ++lens_y)
     {
-        for (int lens_x = 0; lens_x < 3; ++lens_x)
+        for (int lens_x = 0; lens_x < projection->lens_resolution_pixel[0]; ++lens_x)
         {
             // Get the point on the lens
             map_lens_pix_to_world (projection, lens_x, lens_y, lensWorldPix);
             
             // Use the thin lens model to get the direction of ray leaving the lens
-            thin_lens_model(5.0, lensCenter, centerDir, lensWorldPix, dir);
+            thin_lens_model(projection, lensCenter, centerDir, lensWorldPix, dir);
 
             // Trace the ray leaving the lens
             ray_trace( model, lensWorldPix, dir, intensity, 0.0, NULL );
@@ -97,6 +97,7 @@ void make_pixel( model_t *model, int x, int y, unsigned char *pixval )
     }
 }
 
+#if 0
 void make_pixel_orig( model_t *model, int x, int y, unsigned char *pixval )
 {
 	double center[3], gold1[3], gold2[3], randpoint[3], intensity[3], dir[3];
@@ -174,4 +175,4 @@ void make_pixel_orig( model_t *model, int x, int y, unsigned char *pixval )
 	}
 
 }
-
+#endif

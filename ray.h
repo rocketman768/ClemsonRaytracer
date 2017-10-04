@@ -24,8 +24,14 @@ typedef struct projection_type
 {
    int    win_size_pixel[2];    /* Projection screen size in pix     */
    double win_size_world[2];    /* Screen size in world coords       */
-   double view_point[3];        /* Viewpt Loc in world coords        */
    double pix_size_world[2];	/* Size of one pixel in world coords */
+   double image_plane_z_world;  /* Z coordinate of the image plane   */
+
+   /* Lens */
+   int lens_resolution_pixel[2];/* Resolution of the lens in pix     */
+   double lens_size_world[2];   /* Size of the lens in worlld coords */
+   double focal_plane_z_world;  /* Z coordinate of the focal plane   */
+
 }  proj_t;
 
 /** Material structure **/

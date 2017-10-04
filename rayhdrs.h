@@ -40,7 +40,7 @@ void fplanetex_getamb( obj_t *obj, double *ambient );
 void map_pix_to_world (proj_t *projection, int x, int y, double *world);
 void map_lens_pix_to_world (proj_t *projection, int x, int y, double *world);
 void thin_lens_model(
-                     const double focalDistance,
+                     proj_t *projection,
                      double *lensCenter,
                      double *centerRayDirection,
                      double *lensPosition,

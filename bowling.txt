@@ -1,5 +1,9 @@
-8 6	#x,y dimensions
-0 0 4	#viewpoint
+1.333 # aspect ratio
+90.0  # fov (degrees)
+0.050 # focal length
+0.5   # f-number
+3 3   # lens resolution (px)
+-5.0  # focal plane z
 
 # Alley
 fplanetex

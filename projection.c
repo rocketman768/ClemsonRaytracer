@@ -1,76 +1,68 @@
+#include <math.h>
 #include <stdlib.h>
 #include "ray.h"
 #include "rayhdrs.h"
 
 proj_t *projection_init(FILE *inFP, int columns) {
    proj_t *newProjPtr;
-   char buf[256];
-   int count;
+   double tmp[2];
+   double fov_deg;
+   double focalLength;
+   double aspectRatio;
+   double fNumber;
 
    /* Allocate space for projection data */
    newProjPtr = (proj_t *) malloc(sizeof(proj_t));
 
-   /* Fetch the world x and y unit sizes */
-   count = 0;
-   while (count < 2) {
-      if (fscanf(inFP, "%lf", &newProjPtr->win_size_world[count]) <= 0) {
-         /* Flush through newline */
-         if (fgets(buf, sizeof(buf), inFP) == NULL) {
-            fprintf(stderr, "Error: could not read world coordiantes\n");
-            return(NULL);
-         }
-         if (buf[0] != '#') {
-            fprintf(stderr, "Error: garbage in input\n");
-            return(NULL);
-         }
-      }
-      else {
-         count++;
-      }
-   }
+   /* Parse the input */
+   parsefile_poundcomments(inFP, &aspectRatio, 1);
+   parsefile_poundcomments(inFP, &fov_deg, 1);
+   parsefile_poundcomments(inFP, &focalLength, 1);
+   parsefile_poundcomments(inFP, &fNumber, 1);
+   parsefile_poundcomments(inFP, tmp, 2);
+   newProjPtr->lens_resolution_pixel[0] = tmp[0] + 0.5;
+   newProjPtr->lens_resolution_pixel[1] = tmp[1] + 0.5;
+   parsefile_poundcomments(inFP, &newProjPtr->focal_plane_z_world, 1);
+
+   /* Set the focal plane */
+   newProjPtr->image_plane_z_world = focalLength;
 
    /* Set pixel column and row dimensions */
    newProjPtr->win_size_pixel[0] = columns;
-   newProjPtr->win_size_pixel[1] = 
-        (newProjPtr->win_size_world[1]/newProjPtr->win_size_world[0])*columns;
+   newProjPtr->win_size_pixel[1] = (double)columns / aspectRatio;
 
+   /* Calculate world sizes for the image plane */
+   newProjPtr->win_size_world[0] = 2.0 * focalLength * tan((M_PI / 180.0) * (fov_deg / 2.f));
+   newProjPtr->win_size_world[1] = newProjPtr->win_size_world[0] / aspectRatio;
+
+   /* Calculate world size for a pixel */
    newProjPtr->pix_size_world[0] = newProjPtr->win_size_world[0]/(double)newProjPtr->win_size_pixel[0];
    newProjPtr->pix_size_world[1] = newProjPtr->win_size_world[1]/(double)newProjPtr->win_size_pixel[1];
 
-   /* Next fetch the viewpoint (x, y, z) coordinates */
-   count = 0;
-   while (count < 3) {
-      if (fscanf(inFP, "%lf", &newProjPtr->view_point[count]) <= 0) {
-         /* Flush through newline */
-         if (fgets(buf, sizeof(buf), inFP) == NULL) {
-            fprintf(stderr, "Error: could not read viewpoint coordinates\n");
-            return(NULL);
-         }
-         if (buf[0] != '#') {
-            fprintf(stderr, "Error: garbage in input\n");
-            return(NULL);
-         }
-      }
-      else {
-         count++;
-      }
-   }
+   /* Calculate the world size of the lens */
+   newProjPtr->lens_size_world[0] = focalLength / fNumber;
+   newProjPtr->lens_size_world[1] = newProjPtr->lens_size_world[0];
 
    return(newProjPtr);
 }
 
 void projection_dump(proj_t *projection) {
    fprintf(stderr, "Projection Dump:\n");
-   fprintf(stdout, "   Pixel size: %6d %6d\n",
+   fprintf(stdout, "   Pixel size:  %6d %6d\n",
           projection->win_size_pixel[0],
           projection->win_size_pixel[1]);
-   fprintf(stdout, "   World size: %6.2lf %6.2lf\n",
+   fprintf(stdout, "   World size:  %6.2lf %6.2lf\n",
           projection->win_size_world[0],
           projection->win_size_world[1]);
-   fprintf(stdout, "   Viewpoint:  %6.2lf %6.2lf %6.2lf\n\n",
-          projection->view_point[0],
-          projection->view_point[1],
-          projection->view_point[2]);
+   fprintf(stdout, "   Image plane: z=%6.2lf\n",
+          projection->image_plane_z_world);
+   fprintf(stdout, "   Lens resolution:  %6d %6d\n",
+           projection->lens_resolution_pixel[0],
+           projection->lens_resolution_pixel[1]);
+   fprintf(stdout, "   Lens size:  %6.2f %6.2f\n",
+           projection->lens_size_world[0],
+           projection->lens_size_world[1]);
+   fprintf(stdout, "\n");
 }
 
 void map_pix_to_world( proj_t *projection, int x, int y, double *world )
@@ -84,29 +76,24 @@ void map_pix_to_world( proj_t *projection, int x, int y, double *world )
                - projection->win_size_world[0] / 2.0;
    world[1] = (yd / yResolution) * projection->win_size_world[1]
                - projection->win_size_world[1] / 2.0;
-   world[2] = projection->view_point[2];
+   world[2] = projection->image_plane_z_world;
 }
 
 void map_lens_pix_to_world (proj_t *projection, int x, int y, double *world)
 {
-    // TODO: make parameters
-    const double fNumber = 2.7f;
-    const double focalLength = 0.3f;
-    const double xResolution = 3.f;
-    const double yResolution = 3.f;
+    const double xResolution = projection->lens_resolution_pixel[0];
+    const double yResolution = projection->lens_resolution_pixel[1];
 
     double xd = (double)x + 0.5f;
     double yd = (double)y + 0.5f;
-    double xSizeWorld = focalLength / fNumber;
-    double ySizeWorld = focalLength / fNumber;
     
-    world[0] = xd / xResolution * xSizeWorld;
-    world[1] = yd / yResolution * ySizeWorld;
+    world[0] = xd / xResolution * projection->lens_size_world[0];
+    world[1] = yd / yResolution * projection->lens_size_world[1];
     world[2] = 0.f;
 }
 
 void thin_lens_model(
-                     const double focalDistance,
+                     proj_t *projection,
                      double *lensCenter,
                      double *centerRayDirection,
                      double *lensPosition,
@@ -120,7 +107,7 @@ void thin_lens_model(
     // All rays should meet at this point on the focal plane.
     // This is the ray that extends from the lens center along the direction from the
     // image plane pixel until it hits the plane of focus.
-    vl_scale3(centerRayFocalPoint, centerRayDirection, -focalDistance / centerRayDirection[2]);
+    vl_scale3(centerRayFocalPoint, centerRayDirection, projection->focal_plane_z_world / centerRayDirection[2]);
     vl_sum3(centerRayFocalPoint, centerRayFocalPoint, lensCenter);
     
     // outgoingRayDirection = norm( centerRayFocalPoint - lensPosition )
@@ -160,30 +147,4 @@ void rand_scatter( proj_t *proj, double *input, double *output )
 	output[0] = input[0] + randx;
 	output[1] = input[1] + randy;
 	output[2] = 0;
-}
-
-void raytest(proj_t *projection) {
-   int x;
-   int y;
-   double worldPix[3];
-   double resultV[3];
-   double unitV[3];
-   double length;
-
-   for (y=0; y<projection->win_size_pixel[1]; y++) {
-      for (x=0; x<projection->win_size_pixel[0]; x++) {
-          map_pix_to_world(projection, x, y, worldPix);
-
-          vl_diff3(resultV, worldPix, projection->view_point);
-          length = vl_length3(resultV);
-          
-          vl_unitvec3(unitV, resultV);
-
-          fprintf(stderr, "%4d %4d %7.3lf %7.3lf %7.3lf %7.3lf %7.3lf %7.3lf\n",
-                           x, y, 
-                           worldPix[0], worldPix[1], 
-                           length, 
-                           unitV[0], unitV[1], unitV[2]); 
-      }
-   }
 }
